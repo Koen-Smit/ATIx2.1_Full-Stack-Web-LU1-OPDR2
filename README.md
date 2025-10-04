@@ -88,30 +88,32 @@ npm install package-name --save-dev             # Voor root
   "updated_at": "Date"
 }
 ```
-
 ### Schema Uitleg
+```
 - **Users**: Bevat gebruikersinformatie met een favorites array die verwijst naar modules
 - **Modules**: Bevat module/cursus informatie met details over studiecredits en locatie
 - **Relaties**: Users kunnen modules toevoegen aan favorites via module_id referentie
-
 ```
 
 ## API Endpoints
 
 ### Base API
+
 ```
 GET /                                           - 
 GET /connection-test                            - Database connectie test
 ```
 
 ### Users API
+
 ```
 GET /api/users                                  - Alle gebruikers ophalen
 GET /api/users/:id                              - Specifieke gebruiker ophalen op ID
 GET /api/users/search/email?email=xxx           - Gebruiker ophalen op email
 ```
 
-### Modules API  
+### Modules API
+
 ```
 GET /api/modules                                - Alle modules ophalen
 GET /api/modules/:id                            - Specifieke module ophalen op ID
