@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { Module } from '../../domain/entities/module.entity';
 import type { IModuleRepository } from '../../domain/repositories/module-repository.interface';
 
 @Injectable()
 export class ModuleService {
-  constructor(private readonly moduleRepository: IModuleRepository) {}
+  constructor(@Inject('IModuleRepository') private readonly moduleRepository: IModuleRepository) {}
 
   async getAllModules(): Promise<Module[]> {
     return await this.moduleRepository.findAll();
@@ -24,6 +24,10 @@ export class ModuleService {
 
   async getModulesByLocation(location: string): Promise<Module[]> {
     return await this.moduleRepository.findByLocation(location);
+  }
+
+  async getModulesByName(name: string): Promise<Module[]> {
+    return await this.moduleRepository.findByName(name);
   }
 
   async createModule(moduleData: Omit<Module, 'id' | 'createdAt' | 'updatedAt'>): Promise<Module> {

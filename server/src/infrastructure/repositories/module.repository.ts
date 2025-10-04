@@ -33,6 +33,14 @@ export class ModuleRepository implements IModuleRepository {
     return moduleDocs.map(doc => this.mapToEntity(doc));
   }
 
+  async findByName(name: string): Promise<Module[]> {
+    // Use case-insensitive search with regex
+    const moduleDocs = await this.moduleModel.find({ 
+      name: { $regex: name, $options: 'i' } 
+    });
+    return moduleDocs.map(doc => this.mapToEntity(doc));
+  }
+
   async create(module: Module): Promise<Module> {
     const moduleDoc = new this.moduleModel({
       name: module.name,

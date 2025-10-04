@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
 import type { IUserRepository } from '../../domain/repositories/user-repository.interface';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    @Inject('IUserRepository')
+    private readonly userRepository: IUserRepository
+  ) {}
 
   async getAllUsers(): Promise<User[]> {
-    return await this.userRepository.findAll();
+    return this.userRepository.findAll();
   }
 
   async getUserById(id: string): Promise<User> {
@@ -42,7 +45,12 @@ export class UserService {
   }
 
   async updateUser(id: string, userData: Partial<User>): Promise<User> {
-    const updatedUser = await this.userRepository.update(id, userData);
+    const normalizedUserData = { ...userData };
+    if (normalizedUserData.email) {
+      normalizedUserData.email = normalizedUserData.email.toLowerCase();
+    }
+    
+    const updatedUser = await this.userRepository.update(id, normalizedUserData);
     if (!updatedUser) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }

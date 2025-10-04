@@ -5,6 +5,7 @@ export interface IModuleRepository {
   findAll(): Promise<Module[]>;
   findByLevel(level: string): Promise<Module[]>;
   findByLocation(location: string): Promise<Module[]>;
+  findByName(name: string): Promise<Module[]>;
   create(module: Module): Promise<Module>;
   update(id: string, module: Partial<Module>): Promise<Module | null>;
   delete(id: string): Promise<boolean>;

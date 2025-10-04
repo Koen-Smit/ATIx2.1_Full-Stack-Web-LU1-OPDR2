@@ -100,24 +100,44 @@ npm install package-name --save-dev             # Voor root
 
 ### Base API
 ```
-GET /                                           - 
+GET /                                           - Welkomstbericht
 GET /connection-test                            - Database connectie test
 ```
 
-### Users API
+### Authentication API (Public)
 ```
-GET /api/users                                  - Alle gebruikers ophalen
-GET /api/users/:id                              - Specifieke gebruiker ophalen op ID
-GET /api/users/search/email?email=xxx           - Gebruiker ophalen op email
+POST /api/auth/register                         - Nieuwe gebruiker registreren
+POST /api/auth/login                            - Inloggen
+POST /api/auth/logout                           - Uitloggen
 ```
 
-### Modules API  
+### Users API (Protected - authentication required)
+```
+GET /api/users                                  - Alle gebruikers ophalen
+GET /api/users/profile                          - Eigen profiel ophalen
+GET /api/users/:id                              - Specifieke gebruiker ophalen op ID
+GET /api/users/search/email?email=xxx           - Gebruiker ophalen op email
+PUT /api/users/email                            - Email adres wijzigen
+POST /api/users/favorites                       - Module toevoegen aan favorieten
+DELETE /api/users/favorites/:moduleId           - Module verwijderen uit favorieten
+```
+
+### Modules API (Protected - authentication required)
 ```
 GET /api/modules                                - Alle modules ophalen
 GET /api/modules/:id                            - Specifieke module ophalen op ID
+GET /api/modules/search/name?name=xxx           - Modules ophalen op naam
 GET /api/modules/search/level?level=xxx         - Modules ophalen op level
 GET /api/modules/search/location?location=xxx   - Modules ophalen op locatie
 ```
+
+### Authentication
+All endpoints marked as "Protected" require a valid JWT token in the Authorization header:
+```
+Authorization: Bearer <your_jwt_token>
+```
+
+Get the JWT token by logging in via `/api/auth/login`.
 
 ## Onion Architecture
 
