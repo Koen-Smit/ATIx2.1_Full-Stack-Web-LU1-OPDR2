@@ -7,7 +7,7 @@ import { Module } from '../models/module.model';
   providedIn: 'root'
 })
 export class ModuleService {
-  private readonly API_URL = 'http://localhost:3000/api/modules';
+  private readonly API_URL = (window as any)?.env?.API_URL ? `${(window as any).env.API_URL}/modules` : 'http://localhost:3000/api/modules';
 
   constructor(private http: HttpClient) {}
 
