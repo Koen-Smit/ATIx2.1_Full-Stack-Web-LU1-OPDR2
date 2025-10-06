@@ -1,89 +1,173 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ModuleService } from '../../services/module.service';
 import { UserService } from '../../services/user.service';
 import { Module } from '../../models/module.model';
 
+interface FilterState {
+  searchTerm: string;
+  location: string;
+  studycredit: string;
+  level: string;
+  sortBy: string;
+}
+
 @Component({
   selector: 'app-modules',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="px-4 sm:px-6 lg:px-8">
-      <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-          <h1 class="text-2xl font-semibold text-gray-900">Modules</h1>
-          <p class="mt-2 text-sm text-gray-700">
+    <div class="container-fluid p-4" style="background-color: #ffffff; min-height: 100vh;">
+      <div class="d-flex align-items-center mb-4">
+        <div class="flex-grow-1">
+          <h1 class="h2 fw-semibold text-dark mb-2">Modules</h1>
+          <p class="text-muted small">
             Overzicht van alle beschikbare modules en cursussen.
           </p>
         </div>
       </div>
 
+      <!-- Search and Filter Section -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form [formGroup]="filterForm">
+            <!-- Search Bar -->
+            <div class="row mb-3">
+              <div class="col-12 col-md-8">
+                <div class="input-group">
+                  <input type="text" 
+                         class="form-control" 
+                         placeholder="Zoek op modulenaam..." 
+                         formControlName="searchTerm">
+                  <button class="btn btn-primary" type="button" (click)="performSearch()">
+                    Zoeken
+                  </button>
+                </div>
+              </div>
+              <div class="col-12 col-md-4 mt-2 mt-md-0">
+                <button type="button" 
+                        class="btn btn-outline-secondary w-100" 
+                        (click)="toggleFilters()">
+                  <span *ngIf="!showFilters">Filters tonen</span>
+                  <span *ngIf="showFilters">Filters verbergen</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div *ngIf="showFilters" class="row g-3">
+              <div class="col-12 col-md-3">
+                <label class="form-label small fw-medium">Locatie</label>
+                <select class="form-select" formControlName="location">
+                  <option value="">Alle locaties</option>
+                  <option *ngFor="let location of availableLocations" [value]="location">{{ location }}</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small fw-medium">Studiepunten</label>
+                <select class="form-select" formControlName="studycredit">
+                  <option value="">Alle studiepunten</option>
+                  <option *ngFor="let credit of availableStudyCredits" [value]="credit">{{ credit }} punten</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small fw-medium">Niveau</label>
+                <select class="form-select" formControlName="level">
+                  <option value="">Alle niveaus</option>
+                  <option *ngFor="let level of availableLevels" [value]="level">{{ level }}</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label small fw-medium">Sorteren op</label>
+                <select class="form-select" formControlName="sortBy">
+                  <option value="name-asc">Naam (A-Z)</option>
+                  <option value="name-desc">Naam (Z-A)</option>
+                  <option value="studycredit-asc">Studiepunten (laag-hoog)</option>
+                  <option value="studycredit-desc">Studiepunten (hoog-laag)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <button type="button" 
+                        class="btn btn-outline-danger btn-sm" 
+                        (click)="clearFilters()">
+                  Filters wissen
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Results count -->
+      <div *ngIf="!isLoading" class="mb-3">
+        <small class="text-muted">
+          {{ filteredModules.length }} van {{ modules.length }} modules
+        </small>
+      </div>
+
       <!-- Loading state -->
-      <div *ngIf="isLoading" class="mt-8 flex justify-center">
-        <div class="animate-spin rounded-full h-2 w-2 border-b-2 border-indigo-600 icon-xs"></div>
+      <div *ngIf="isLoading" class="text-center mt-4">
+        <div class="text-muted">Laden...</div>
       </div>
 
       <!-- Error state -->
-      <div *ngIf="errorMessage" class="mt-8 bg-red-50 border border-red-200 rounded-md p-4">
-        <div class="text-red-800">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="alert alert-danger mt-4">
+        <div>{{ errorMessage }}</div>
       </div>
 
       <!-- Success message -->
-      <div *ngIf="successMessage" class="mt-8 bg-green-50 border border-green-200 rounded-md p-4">
-        <div class="text-green-800">{{ successMessage }}</div>
+      <div *ngIf="successMessage" class="alert alert-success mt-4">
+        <div>{{ successMessage }}</div>
       </div>
 
       <!-- Modules grid -->
-      <div *ngIf="!isLoading && modules.length > 0" class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngFor="let module of modules" class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden border border-gray-200">
-          <!-- Card Header -->
-          <div class="p-6">
-            <div class="flex items-start justify-between mb-3">
-              <h3 class="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-3">{{ module.name }}</h3>
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 whitespace-nowrap">
-                {{ module.level }}
-              </span>
-            </div>
-            
-            <p class="text-sm text-gray-600 mb-4 line-clamp-3">{{ module.shortdescription }}</p>
-            
-            <!-- Module Details -->
-            <div class="space-y-2 mb-4">
-              <div class="flex items-center text-sm text-gray-500">
-                <svg class="flex-shrink-0 mr-2 h-2 w-2 icon-xs text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                </svg>
-                <span>{{ module.location }}</span>
+      <div *ngIf="!isLoading && filteredModules.length > 0" class="row mt-4 g-4">
+        <div *ngFor="let module of filteredModules" class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border">
+            <!-- Card Header -->
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title fw-semibold text-dark me-3" style="line-height: 1.3;">{{ module.name }}</h5>
+                <span class="badge bg-primary rounded-pill small">
+                  {{ module.level }}
+                </span>
               </div>
-              <div class="flex items-center text-sm text-gray-500">
-                <svg class="flex-shrink-0 mr-2 h-2 w-2 icon-xs text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>{{ module.studycredit }} studiepunten</span>
+              
+              <p class="card-text text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ module.shortdescription }}</p>
+              
+              <!-- Module Details -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center small text-muted mb-1">
+                  <span class="fw-medium me-1">Locatie:</span>
+                  <span>{{ module.location }}</span>
+                </div>
+                <div class="d-flex align-items-center small text-muted">
+                  <span class="fw-medium me-1">Studiepunten:</span>
+                  <span>{{ module.studycredit }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Card Footer -->
-          <div class="px-6 pb-6">
-            <button
-              (click)="addToFavorites(module.id)"
-              [disabled]="isAddingToFavorites[module.id]"
-              class="w-full flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md disabled:cursor-not-allowed"
-            >
-              <span *ngIf="isAddingToFavorites[module.id]" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-2 w-2 text-white icon-xs" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Toevoegen...
+            <!-- Card Footer -->
+            <div class="card-footer bg-white border-0 pt-0">
+              <button
+                (click)="toggleFavorite(module.id)"
+                [disabled]="isAddingToFavorites[module.id]"
+                class="btn w-100"
+                [class.btn-success]="!isInFavorites(module.id) && !isAddingToFavorites[module.id]"
+                [class.btn-primary]="isInFavorites(module.id) && !isAddingToFavorites[module.id]"
+                [class.btn-secondary]="isAddingToFavorites[module.id]"
+              >
+              <span *ngIf="isAddingToFavorites[module.id]">
+                Bezig...
               </span>
-              <span *ngIf="!isAddingToFavorites[module.id]" class="flex items-center">
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                </svg>
-                Toevoegen aan favorieten
+              <span *ngIf="!isAddingToFavorites[module.id] && !isInFavorites(module.id)">
+                Opslaan
+              </span>
+              <span *ngIf="!isAddingToFavorites[module.id] && isInFavorites(module.id)">
+                Naar favorieten
               </span>
             </button>
           </div>
@@ -91,30 +175,52 @@ import { Module } from '../../models/module.model';
       </div>
 
       <!-- Empty state -->
-      <div *ngIf="!isLoading && modules.length === 0 && !errorMessage" class="mt-8 text-center">
-        <svg class="mx-auto h-2 w-2 text-gray-400 icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Geen modules gevonden</h3>
-        <p class="mt-1 text-sm text-gray-500">Er zijn momenteel geen modules beschikbaar.</p>
+      <div *ngIf="!isLoading && filteredModules.length === 0 && modules.length > 0" class="text-center mt-4">
+        <h5 class="fw-medium text-dark">Geen modules gevonden</h5>
+        <p class="text-muted small">Geen modules voldoen aan de huidige zoekcriteria. Probeer de filters aan te passen.</p>
+      </div>
+
+      <!-- No modules at all -->
+      <div *ngIf="!isLoading && modules.length === 0 && !errorMessage" class="text-center mt-4">
+        <h5 class="fw-medium text-dark">Geen modules beschikbaar</h5>
+        <p class="text-muted small">Er zijn momenteel geen modules beschikbaar.</p>
       </div>
     </div>
   `
 })
 export class ModulesComponent implements OnInit {
   modules: Module[] = [];
+  filteredModules: Module[] = [];
   isLoading = false;
   errorMessage = '';
   successMessage = '';
   isAddingToFavorites: { [key: string]: boolean } = {};
+  userFavorites: Set<string> = new Set();
+  showFilters = false;
+  
+  filterForm: FormGroup;
+  availableLocations: string[] = [];
+  availableStudyCredits: number[] = [];
+  availableLevels: string[] = [];
 
   constructor(
     private moduleService: ModuleService,
-    private userService: UserService
-  ) {}
+    private userService: UserService,
+    private fb: FormBuilder,
+    private router: Router
+  ) {
+    this.filterForm = this.fb.group({
+      searchTerm: [''],
+      location: [''],
+      studycredit: [''],
+      level: [''],
+      sortBy: ['name-asc']
+    });
+  }
 
   ngOnInit(): void {
     this.loadModules();
+    this.loadUserFavorites();
   }
 
   loadModules(): void {
@@ -124,6 +230,10 @@ export class ModulesComponent implements OnInit {
     this.moduleService.getAllModules().subscribe({
       next: (modules) => {
         this.modules = modules;
+        this.filteredModules = [...modules];
+        this.extractFilterOptions();
+        this.applyFilters();
+        this.setupFormSubscription();
         this.isLoading = false;
       },
       error: (error) => {
@@ -134,14 +244,141 @@ export class ModulesComponent implements OnInit {
     });
   }
 
+  private setupFormSubscription(): void {
+    this.filterForm.valueChanges.subscribe(() => {
+      this.applyFilters();
+    });
+  }
+
+  private extractFilterOptions(): void {
+    const locations = new Set<string>();
+    const studyCredits = new Set<number>();
+    const levels = new Set<string>();
+
+    this.modules.forEach(module => {
+      if (module.location) locations.add(module.location);
+      if (module.studycredit) studyCredits.add(module.studycredit);
+      if (module.level) levels.add(module.level);
+    });
+
+    this.availableLocations = Array.from(locations).sort();
+    this.availableStudyCredits = Array.from(studyCredits).sort((a, b) => a - b);
+    this.availableLevels = Array.from(levels).sort();
+  }
+
+  private applyFilters(): void {
+    const filters = this.filterForm.value;
+    let filtered = [...this.modules];
+
+
+    // Apply search term filter
+    if (filters.searchTerm && filters.searchTerm.trim()) {
+      const searchTerm = filters.searchTerm.toLowerCase().trim();
+      console.log('Searching for:', searchTerm);
+      filtered = filtered.filter(module => 
+        module.name.toLowerCase().includes(searchTerm) ||
+        module.shortdescription.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply location filter
+    if (filters.location && filters.location.trim()) {
+      filtered = filtered.filter(module => module.location === filters.location);
+    }
+
+    // Apply study credit filter
+    if (filters.studycredit && filters.studycredit.trim()) {
+      filtered = filtered.filter(module => module.studycredit.toString() === filters.studycredit);
+    }
+
+    // Apply level filter
+    if (filters.level && filters.level.trim()) {
+      filtered = filtered.filter(module => module.level === filters.level);
+    }
+
+    // Apply sorting
+    this.applySorting(filtered, filters.sortBy || 'name-asc');
+
+    this.filteredModules = filtered;
+  }
+
+  private applySorting(modules: Module[], sortBy: string): void {
+    switch (sortBy) {
+      case 'name-asc':
+        modules.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        modules.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'studycredit-asc':
+        modules.sort((a, b) => a.studycredit - b.studycredit);
+        break;
+      case 'studycredit-desc':
+        modules.sort((a, b) => b.studycredit - a.studycredit);
+        break;
+    }
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+
+  performSearch(): void {
+    const searchTerm = this.filterForm.get('searchTerm')?.value;
+    
+    if (!searchTerm || !searchTerm.trim()) {
+      this.filteredModules = [...this.modules];
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase().trim();
+    
+    this.filteredModules = this.modules.filter(module => 
+      module.name.toLowerCase().includes(searchTermLower)
+    );
+    
+    const sortBy = this.filterForm.get('sortBy')?.value || 'name-asc';
+    this.applySorting(this.filteredModules, sortBy);
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({
+      searchTerm: '',
+      location: '',
+      studycredit: '',
+      level: '',
+      sortBy: 'name-asc'
+    });
+  }
+
   addToFavorites(moduleId: string): void {
+    const module = this.modules.find(m => m.id === moduleId);
+    if (!module) {
+      this.errorMessage = 'Module niet gevonden';
+      return;
+    }
+
+    if (this.isInFavorites(moduleId)) {
+      this.errorMessage = 'Module staat al in favorieten';
+      setTimeout(() => this.errorMessage = '', 3000);
+      return;
+    }
+
+    const moduleData = {
+      module_id: module.id,
+      module_name: module.name,
+      studycredit: module.studycredit,
+      location: module.location
+    };
+
     this.isAddingToFavorites[moduleId] = true;
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.userService.addToFavorites(moduleId).subscribe({
+    this.userService.addToFavorites(moduleData).subscribe({
       next: () => {
         this.isAddingToFavorites[moduleId] = false;
+        this.userFavorites.add(moduleId); // Update local state
         this.successMessage = 'Module succesvol toegevoegd aan favorieten!';
         setTimeout(() => this.successMessage = '', 3000);
       },
@@ -152,5 +389,33 @@ export class ModulesComponent implements OnInit {
         console.error('Error adding to favorites:', error);
       }
     });
+  }
+
+  loadUserFavorites(): void {
+    this.userService.getProfile().subscribe({
+      next: (user) => {
+        if (user.favorites) {
+          this.userFavorites = new Set(user.favorites.map((fav: any) => fav.module_id));
+        }
+      },
+      error: (error) => {
+        console.error('Error loading user favorites:', error);
+      }
+    });
+  }
+
+  isInFavorites(moduleId: string): boolean {
+    return this.userFavorites.has(moduleId);
+  }
+
+  toggleFavorite(moduleId: string): void {
+    if (this.isInFavorites(moduleId)) {
+      // Module is already in favorites, navigate to favorites page
+      this.router.navigate(['/favorites']);
+      return;
+    }
+    
+    // Module is not in favorites, add it
+    this.addToFavorites(moduleId);
   }
 }

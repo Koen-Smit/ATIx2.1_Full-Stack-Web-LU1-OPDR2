@@ -10,84 +10,78 @@ import { User } from '../../models/user.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="px-4 sm:px-6 lg:px-8">
-      <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-          <h1 class="text-2xl font-semibold text-gray-900">Mijn Profiel</h1>
-          <p class="mt-2 text-sm text-gray-700">
+    <div class="container-fluid p-4" style="background-color: #ffffff; min-height: 100vh;">
+      <div class="d-flex align-items-center mb-4">
+        <div class="flex-grow-1">
+          <h1 class="h2 fw-semibold text-dark mb-2">Mijn Profiel</h1>
+          <p class="text-muted small">
             Beheer je persoonlijke informatie en account instellingen.
           </p>
         </div>
       </div>
 
       <!-- Loading state -->
-      <div *ngIf="isLoading" class="mt-8 flex justify-center">
-        <div class="animate-spin rounded-full h-2 w-2 border-b-2 border-indigo-600 icon-xs"></div>
+      <div *ngIf="isLoading" class="text-center mt-4">
+        <div class="text-muted">Laden...</div>
       </div>
 
       <!-- Error state -->
-      <div *ngIf="errorMessage" class="mt-8 bg-red-50 border border-red-200 rounded-md p-4">
-        <div class="text-red-800">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="alert alert-danger mt-4">
+        <div>{{ errorMessage }}</div>
       </div>
 
       <!-- Success message -->
-      <div *ngIf="successMessage" class="mt-8 bg-green-50 border border-green-200 rounded-md p-4">
-        <div class="text-green-800">{{ successMessage }}</div>
+      <div *ngIf="successMessage" class="alert alert-success mt-4">
+        <div>{{ successMessage }}</div>
       </div>
 
       <!-- Profile form -->
-      <div *ngIf="!isLoading && user" class="mt-8">
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+      <div *ngIf="!isLoading && user" class="mt-4">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="card-title h5 fw-semibold text-dark mb-4">
               Persoonlijke Informatie
             </h3>
             
-            <!-- Read-only information -->
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Voornaam</label>
-                <div class="mt-1 p-3 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900">
-                  {{ user.firstname }}
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Achternaam</label>
-                <div class="mt-1 p-3 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900">
-                  {{ user.lastname }}
+            <!-- User name display -->
+            <div class="mb-4">
+              <div class="row">
+                <div class="col-12">
+                  <div class="d-flex align-items-center mb-3">
+                    <span class="fw-medium me-2 text-muted">Naam:</span>
+                    <span class="fs-6 text-dark">{{ user.firstname }} {{ user.lastname }}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Editable email -->
             <form [formGroup]="emailForm" (ngSubmit)="updateEmail()">
-              <div class="mb-6">
-                <label for="email" class="block text-sm font-medium text-gray-700">Email adres</label>
-                <div class="mt-1 flex rounded-md shadow-sm">
+              <div class="mb-4">
+                <label for="email" class="form-label fw-medium text-muted">Email adres</label>
+                <div class="input-group">
                   <input
                     type="email"
                     id="email"
                     formControlName="email"
-                    class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    class="form-control"
+                    [class.is-invalid]="emailForm.get('email')?.invalid && emailForm.get('email')?.touched"
                     placeholder="Email adres"
                   />
                   <button
                     type="submit"
                     [disabled]="emailForm.invalid || isUpdatingEmail || emailForm.get('email')?.value === user.email"
-                    class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 text-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="btn btn-success"
+                    [class.btn-secondary]="isUpdatingEmail"
                   >
-                    <span *ngIf="isUpdatingEmail" class="flex items-center">
-                      <svg class="animate-spin -ml-1 mr-1 h-2 w-2 icon-xs" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                    <span *ngIf="isUpdatingEmail">
                       Bezig...
                     </span>
                     <span *ngIf="!isUpdatingEmail">Bijwerken</span>
                   </button>
                 </div>
                 <div *ngIf="emailForm.get('email')?.invalid && emailForm.get('email')?.touched" 
-                     class="text-red-500 text-sm mt-1">
+                     class="invalid-feedback d-block">
                   <div *ngIf="emailForm.get('email')?.errors?.['required']">Email is verplicht</div>
                   <div *ngIf="emailForm.get('email')?.errors?.['email']">Voer een geldig email adres in</div>
                 </div>
@@ -95,20 +89,26 @@ import { User } from '../../models/user.model';
             </form>
 
             <!-- Account info -->
-            <div class="border-t border-gray-200 pt-6">
-              <h4 class="text-md font-medium text-gray-900 mt-3 mb-3">Account informatie</h4>
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <span class="text-sm font-medium text-gray-500">Account aangemaakt</span>
-                  <p class="text-sm text-gray-900">{{ user.created_at | date:'dd MMMM yyyy' }}</p>
+            <div class="border-top pt-4">
+              <h4 class="h6 fw-semibold text-dark mb-3">Account informatie</h4>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="d-flex flex-column">
+                    <span class="small fw-medium text-muted">Account aangemaakt</span>
+                    <span class="small text-dark">{{ user.created_at | date:'dd MMMM yyyy' }}</span>
+                  </div>
                 </div>
-                <div>
-                  <span class="text-sm font-medium text-gray-500">Laatst bijgewerkt</span>
-                  <p class="text-sm text-gray-900">{{ user.updated_at | date:'dd MMMM yyyy' }}</p>
+                <div class="col-md-4">
+                  <div class="d-flex flex-column">
+                    <span class="small fw-medium text-muted">Laatst bijgewerkt</span>
+                    <span class="small text-dark">{{ user.updated_at | date:'dd MMMM yyyy' }}</span>
+                  </div>
                 </div>
-                <div>
-                  <span class="text-sm font-medium text-gray-500">Aantal favorieten</span>
-                  <p class="text-sm text-gray-900">{{ user.favorites?.length || 0 }} modules</p>
+                <div class="col-md-4">
+                  <div class="d-flex flex-column">
+                    <span class="small fw-medium text-muted">Aantal favorieten</span>
+                    <span class="small text-dark">{{ user.favorites?.length || 0 }} modules</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -46,9 +46,29 @@ export class UserController {
   async updateEmail(@Request() req: AuthenticatedRequest, @Body() updateEmailDto: UpdateEmailDto): Promise<UserResponseDto> {
     try {
       const userId = req.user._id;
+      
+      // Check if email is already in use by another user
+      try {
+        const existingUser = await this.userService.getUserByEmail(updateEmailDto.email);
+        if (existingUser && existingUser._id !== userId) {
+          throw new HttpException('Dit email adres is al in gebruik', HttpStatus.CONFLICT);
+        }
+      } catch (error) {
+        if (error instanceof HttpException && error.getStatus() === 409) {
+          throw error;
+        }
+        if (error instanceof HttpException && error.getStatus() !== 404) {
+          throw error;
+        }
+        // email is available
+      }
+      
       const updatedUser = await this.userService.updateUser(userId, { email: updateEmailDto.email });
       return this.mapToResponseDto(updatedUser);
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof Error && error.message.includes('not found')) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }

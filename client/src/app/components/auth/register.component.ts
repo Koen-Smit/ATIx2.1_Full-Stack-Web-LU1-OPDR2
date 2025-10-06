@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { strongPasswordValidator } from '../../validators/password.validator';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background-color: #ffffff;">
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-4">
@@ -95,7 +96,11 @@ import { AuthService } from '../../services/auth.service';
                 <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" 
                      class="invalid-feedback">
                   <div *ngIf="registerForm.get('password')?.errors?.['required']">Wachtwoord is verplicht</div>
-                  <div *ngIf="registerForm.get('password')?.errors?.['minlength']">Wachtwoord moet minimaal 6 tekens bevatten</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['minLength']">Wachtwoord moet minimaal 6 tekens bevatten</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['missingUppercase']">Wachtwoord moet minimaal 1 hoofdletter bevatten</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['missingLowercase']">Wachtwoord moet minimaal 1 kleine letter bevatten</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['missingNumber']">Wachtwoord moet minimaal 1 cijfer bevatten</div>
+                  <div *ngIf="registerForm.get('password')?.errors?.['missingSpecialChar']">Wachtwoord moet minimaal 1 speciaal teken bevatten (!@#$%^&*)</div>
                 </div>
               </div>
 
@@ -134,7 +139,7 @@ export class RegisterComponent {
       firstname: ['', [Validators.required]],
       lastname: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, strongPasswordValidator()]]
     });
   }
 

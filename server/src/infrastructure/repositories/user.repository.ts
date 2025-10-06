@@ -60,7 +60,9 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, any> = {
+      updated_at: new Date() // Always update the timestamp
+    };
     
     if (userData.firstname) updateData.firstname = userData.firstname;
     if (userData.lastname) updateData.lastname = userData.lastname;

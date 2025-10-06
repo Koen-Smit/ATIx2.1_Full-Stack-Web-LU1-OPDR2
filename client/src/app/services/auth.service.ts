@@ -112,15 +112,24 @@ export class AuthService {
             if (!this.currentUserSubject.value) {
               const payload = this.decodeToken(token);
               if (payload && payload.email) {
-                this.currentUserSubject.next({
-                  id: payload.sub || '',
-                  firstname: 'Loading...',
-                  lastname: '',
-                  email: payload.email,
-                  favorites: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
-                });
+                setTimeout(() => {
+                  this.loadUserProfile().subscribe({
+                    next: (user) => {
+                      this.currentUserSubject.next(user);
+                    },
+                    error: () => {
+                      this.currentUserSubject.next({
+                        id: payload.sub || '',
+                        firstname: payload.firstname || 'Loading...',
+                        lastname: payload.lastname || '',
+                        email: payload.email,
+                        favorites: [],
+                        created_at: new Date(),
+                        updated_at: new Date()
+                      });
+                    }
+                  });
+                }, 1000);
               }
             }
           }

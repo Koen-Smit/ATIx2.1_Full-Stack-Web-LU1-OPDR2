@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background-color: #ffffff;">
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-md-6 col-lg-4">

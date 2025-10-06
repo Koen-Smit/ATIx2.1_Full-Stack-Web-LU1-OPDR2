@@ -10,9 +10,9 @@ import { User } from '../../models/user.model';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-    <div class="min-vh-100 bg-light">
+    <div class="min-vh-100" style="background-color: #ffffff;">
       <!-- Navigation -->
-      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
         <div class="container">
           <a class="navbar-brand fw-bold" routerLink="/modules">Module Systeem</a>
           
@@ -38,7 +38,7 @@ import { User } from '../../models/user.model';
                   <ng-container *ngIf="user$ | async as user; else noUser">
                     {{ user.firstname }} {{ user.lastname }}
                   </ng-container>
-                  <ng-template #noUser>Gebruiker</ng-template>
+                  <ng-template #noUser>Loading...</ng-template>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><a class="dropdown-item" routerLink="/profile">Profiel</a></li>

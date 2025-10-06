@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsEmail } from 'class-validator';
 
 export class AddFavoriteDto {
   @IsString()
@@ -20,6 +20,7 @@ export class RemoveFavoriteDto {
 }
 
 export class UpdateEmailDto {
-  @IsString()
+  @IsEmail({}, { message: 'Voer een geldig email adres in' })
+  @IsString({ message: 'Email moet een string zijn' })
   email: string;
 }

@@ -27,8 +27,8 @@ export class UserService {
     return this.http.put<User>(`${this.API_URL}/email`, { email });
   }
 
-  addToFavorites(moduleId: string): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/favorites`, { moduleId });
+  addToFavorites(moduleData: { module_id: string; module_name: string; studycredit: number; location: string }): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/favorites`, moduleData);
   }
 
   removeFromFavorites(moduleId: string): Observable<void> {
