@@ -31,6 +31,14 @@ client/.angular/
 client/e2e/test-output/
 
 # ==========================================
+# Testing
+# ==========================================
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# ==========================================
 # Environment Files
 # ==========================================
 .env
