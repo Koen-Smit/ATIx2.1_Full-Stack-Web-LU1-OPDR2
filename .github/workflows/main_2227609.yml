@@ -130,6 +130,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-app
+          path: ./frontend-dist
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -144,5 +145,6 @@ jobs:
         with:
           app-name: 'Client-2227609'
           slot-name: 'Production'
-          package: .
+          package: ./frontend-dist
+          resource-group-name: 'atix-fullstack-2.1'
           
