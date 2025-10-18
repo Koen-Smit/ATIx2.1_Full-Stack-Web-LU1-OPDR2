@@ -14,7 +14,7 @@ import { User } from '../../models/user.model';
       <!-- Navigation -->
       <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8f9fa; border-bottom: 1px solid #e9ecef;">
         <div class="container">
-          <a class="navbar-brand fw-bold" routerLink="/modules">Module Systeem</a>
+          <a class="navbar-brand fw-bold" routerLink="/modules">Keuze kompas</a>
           
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" [attr.aria-expanded]="false">
             <span class="navbar-toggler-icon"></span>

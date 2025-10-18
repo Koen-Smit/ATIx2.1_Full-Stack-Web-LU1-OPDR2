@@ -60,17 +60,27 @@ jobs:
           npm run build
           cd ..
           
-          # Build frontend
+          # Build frontend  
           cd client
           npm install
-          npm run build
+          npm run build --configuration production
           cd ..
           
           # Create combined deployment structure
           mkdir -p deploy
           cp -r server/* deploy/
           mkdir -p deploy/public
-          cp -r client/dist/client/* deploy/public/
+          
+          # Check if dist directory exists and copy contents
+          if [ -d "client/dist/client" ]; then
+            cp -r client/dist/client/* deploy/public/
+          elif [ -d "client/dist" ]; then
+            cp -r client/dist/* deploy/public/
+          else
+            echo "Frontend build output not found!"
+            ls -la client/
+            exit 1
+          fi
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4

@@ -25,11 +25,11 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Serve static files from public directory
-  app.useStaticAssets(join(__dirname, '..', 'public'));
-  
-  // Set global prefix for API routes
-  app.setGlobalPrefix('api');
+  if (process.env.NODE_ENV === 'production') {
+    app.useStaticAssets(join(__dirname, '..', 'public'));
+    
+    app.setGlobalPrefix('api');
+  }
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
