@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
 import { AppService } from './app.service';
+import type { Response } from 'express';
+import { join } from 'path';
 
 @Controller()
 export class AppController {
@@ -17,5 +19,11 @@ export class AppController {
       message: 'Database connection is successful',
       timestamp: new Date().toISOString(),
     };
+  }
+
+  // Fallback route for Angular routing
+  @Get('*')
+  serveAngularApp(@Res() res: Response): void {
+    res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 }

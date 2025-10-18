@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Full-Stack App to Azure Web Apps
+name: Build and deploy Full-Stack App to Azure Web App
 
 on:
   push:
@@ -26,9 +26,6 @@ jobs:
 
       - name: Install dependencies and run tests
         run: |
-          # Install root dependencies
-          npm install
-          
           # Install server dependencies and test
           cd server
           npm install
@@ -41,7 +38,7 @@ jobs:
           npm run test -- --watch=false --browsers=ChromeHeadless
           cd ..
 
-  build-backend:
+  build:
     runs-on: ubuntu-latest
     needs: test
     permissions:
@@ -55,56 +52,44 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Build backend
+      - name: Build backend and frontend
         run: |
+          # Build backend
           cd server
           npm install
           npm run build
-
-      - name: Upload backend artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-app
-          path: ./server
-
-  build-frontend:
-    runs-on: ubuntu-latest
-    needs: test
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22.x'
-
-      - name: Build frontend
-        run: |
+          cd ..
+          
+          # Build frontend
           cd client
           npm install
-          npm run build --prod
+          npm run build
+          cd ..
+          
+          # Create combined deployment structure
+          mkdir -p deploy
+          cp -r server/* deploy/
+          mkdir -p deploy/public
+          cp -r client/dist/client/* deploy/public/
 
-      - name: Upload frontend artifact
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-app
-          path: ./client/dist
+          name: fullstack-app
+          path: ./deploy
 
-  deploy-backend:
+  deploy:
     runs-on: ubuntu-latest
-    needs: build-backend
+    needs: build
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download backend artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: backend-app
+          name: fullstack-app
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -113,39 +98,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D11190169A7F44A4A996E138EB3C6EA8 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A4E6BE3F7C314607BBC4FAA52AF2E513 }}
 
-      - name: 'Deploy Backend to Azure Web App'
-        id: deploy-backend
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: '2227609'
-          slot-name: 'Production'
-          package: .
-
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    needs: build-frontend
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-app
-      
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2B148E23A8C8453CB552EDDC7B52A414 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D11190169A7F44A4A996E138EB3C6EA8 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A4E6BE3F7C314607BBC4FAA52AF2E513 }}
-
-      - name: 'Deploy Frontend to Azure Web App'
-        id: deploy-frontend
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'client-2227609'
           slot-name: 'Production'
           package: .
           
