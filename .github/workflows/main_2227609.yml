@@ -63,7 +63,7 @@ jobs:
           # Build frontend  
           cd client
           npm install
-          npm run build --configuration production
+          npm run build
           cd ..
           
           # Create combined deployment structure
