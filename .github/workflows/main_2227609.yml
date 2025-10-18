@@ -142,7 +142,7 @@ jobs:
         id: deploy-frontend
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'client-2227609'
+          app-name: 'Client-2227609'
           slot-name: 'Production'
           package: .
           
