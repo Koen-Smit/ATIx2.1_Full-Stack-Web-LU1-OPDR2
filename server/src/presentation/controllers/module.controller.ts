@@ -4,7 +4,7 @@ import { ModuleResponseDto } from '../dto/module.dto';
 import { JwtAuthGuard } from '../../infrastructure/auth/jwt-auth.guard';
 import { Module } from '../../domain/entities/module.entity';
 
-@Controller('api/modules')
+@Controller('modules')
 export class ModuleController {
   constructor(private readonly moduleService: ModuleService) {}
 
