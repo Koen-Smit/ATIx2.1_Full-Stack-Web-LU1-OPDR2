@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "install:all": "npm install && npm install --workspace=client && npm install --workspace=server",
-    "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+    "start": "npm run start:server",
     "start:client": "npm run start --workspace=client",
     "start:client:e2e": "npm run start:e2e --workspace=client",
     "start:server": "npm run start:dev --workspace=server",
