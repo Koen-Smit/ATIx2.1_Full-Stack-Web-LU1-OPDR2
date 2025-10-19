@@ -6,17 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
-  app.enableCors({
-    origin: [
-      'http://localhost:4200',
-      'http://localhost:3000',
-      'https://client-2227609.azurewebsites.net',
-      process.env.FRONTEND_URL || 'https://2227609.azurewebsites.net'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  });
+  app.enableCors({ origin: true, credentials: true });
 
   // Global validation
   app.useGlobalPipes(new ValidationPipe({
