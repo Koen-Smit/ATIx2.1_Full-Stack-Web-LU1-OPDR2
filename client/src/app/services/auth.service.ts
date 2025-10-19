@@ -8,8 +8,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = (window as any)?.env?.API_URL ? `${(window as any).env.API_URL}/auth` : 'http://localhost:3000/api/auth';
-  private readonly USER_API_URL = (window as any)?.env?.API_URL ? `${(window as any).env.API_URL}/users` : 'http://localhost:3000/api/users';
+  private readonly API_URL = (window as any)?.env?.API_URL ? `${(window as any).env.API_URL}/auth` : 'https://2227609.azurewebsites.net/api/auth';
+  private readonly USER_API_URL = (window as any)?.env?.API_URL ? `${(window as any).env.API_URL}/users` : 'https://2227609.azurewebsites.net/api/users';
   private readonly TOKEN_KEY = 'auth_token';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
