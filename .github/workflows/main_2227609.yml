@@ -103,7 +103,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-app
-          path: ./frontend-artifact
+          path: ./dist
 
       - name: Deploy Frontend to Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
@@ -111,5 +111,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "./frontend-artifact"
+          app_location: "/"
+          output_location: "dist"
           skip_app_build: true
