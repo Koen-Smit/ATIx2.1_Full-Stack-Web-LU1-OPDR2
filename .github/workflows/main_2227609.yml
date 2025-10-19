@@ -94,15 +94,22 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+      
       - name: Download frontend artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-app
           path: ./frontend-artifact
 
-      - name: Deploy Frontend to Azure (using publish profile)
-        uses: azure/webapps-deploy@v3
+      - name: Deploy Frontend to Azure Static Web App
+        uses: Azure/static-web-apps-deploy@v1
         with:
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
-          app-name: 'Client-2227609'
-          package: './frontend-artifact'
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "./frontend-artifact"
+          skip_app_build: true
