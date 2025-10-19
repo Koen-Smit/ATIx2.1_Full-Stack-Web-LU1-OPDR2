@@ -30,7 +30,6 @@
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "bcrypt": "^6.0.0",
-    "concurrently": "^8.2.2",
     "dotenv": "^17.2.3",
     "rimraf": "^5.0.5"
   },
