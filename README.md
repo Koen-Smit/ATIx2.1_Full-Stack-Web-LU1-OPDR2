@@ -1,4 +1,4 @@
-# ATIx2.1 Full-Stack Web Project
+# ATIx2.1 Full-Stack Keuze Kompas
 Een full-stack webapplicatie met Angular frontend en NestJS backend.
 
 ## Project Structuur
@@ -6,7 +6,7 @@ Een full-stack webapplicatie met Angular frontend en NestJS backend.
 client/     - Angular frontend applicatie
 server/     - NestJS backend API
 ```
-## Ports
+## Ports/local
 - Client (Angular): http://localhost:4200
 - Server (NestJS): http://localhost:3000
 
@@ -14,37 +14,22 @@ server/     - NestJS backend API
 
 ## Installatie
 ### Alle dependencies installeren
+(bij server en client apart, niet in de root.)
 ```bash
+cd locatie(server/client)
 npm install
-npm run install:all             # Installeer alles
-
-npm install --workspace=client  # Installeer alleen client dependencies
-npm install --workspace=server  # Installeer alleen server dependencies
 ```
 
 ---
 
 ## Development Commands
-### Beide projecten starten
+### Starten
+Zorg dat beide draaien als je client wil gebruiken, tests vereisen beide actief.
 ```bash
-npm start               # Start beide projecten, start zowel de Angular client als de NestJS server development mode
-npm run start:client    # Start alleen Angular client
-npm run start:server    # Start alleen NestJS server
-
-npm run build           # Build beide projecten
-npm run build:client    # Build alleen client
-npm run build:server    # Build alleen server
-
-npm run test            # Run tests voor beide projecten
-npm run test:client     # Run alleen client tests
-npm run test:server     # Run alleen server tests
-```
-
-## Package toevoegen
-```bash
-npm install package-name --workspace=client     # Voor client
-npm install package-name --workspace=server     # Voor server
-npm install package-name --save-dev             # Voor root
+cd locatie(server/client)
+npm run start              
+npm run build           
+npm run test            
 ```
 
 ## MongoDB structuur
@@ -92,7 +77,6 @@ npm install package-name --save-dev             # Voor root
 ```
 - **Users**: Bevat gebruikersinformatie met een favorites array die verwijst naar modules
 - **Modules**: Bevat module/cursus informatie met details over studiecredits en locatie
-- **Relaties**: Users kunnen modules toevoegen aan favorites via module_id referentie
 ```
 
 ## API Endpoints
@@ -279,27 +263,6 @@ cd server && npm run start:dev    # Terminal 2: Server
 - Backend: `http://localhost:3000` 
 - Frontend: `http://localhost:4200`
 
-#### Test Flow & Authentication
-
-**BELANGRIJK**: Registratie logt NIET automatisch in - gebruiker moet handmatig naar login!
-
-- Tests gebruiken **2-stap proces**: Registreer → handmatige login voor authenticated tests
-- Elke test maakt eigen test gebruiker aan met timestamp
-- Geen afhankelijkheden tussen tests
-- Tests verwachten GEEN automatische login na registratie
-
-#### Selectors Strategy
-
-De tests gebruiken **bestaande HTML selectors** in plaats van data-testid:
-- `#firstname`, `#lastname`, `#email`, `#password` voor form fields
-- `button[type="submit"]` voor submit buttons  
-- `.alert-danger` voor error messages
-- `text=` selectors voor link tekst
-
-#### Browser Support
-
-Tests draaien alleen op **Chromium** (Chrome/Edge equivalent) voor eenvoudigere testing.
-
 ## Coverage Reports
 
 ### Backend Coverage
@@ -382,135 +345,3 @@ Dit geeft je volledige coverage reports voor alle applicaties en test alle funct
 
 
 ---
-
-# Unit Tests Samenvatting + report
-
-## **GESLAAGD** Alle Test Eisen Voldaan
-
-Zoals beschreven in de NOTES.md zijn alle vereiste tests geïmplementeerd en **ALLE TESTS SLAGEN**:
-
-### Unit Tests (Minimaal 5 - **VOLTOOID** 29 Tests Gemaakt)
-
-#### Backend NestJS Tests (21 tests - ALLE SLAGEN):
-
-**AuthService Tests (4 tests):**
-1. **GESLAAGD** `validateUser() - happy path` - Correcte credentials validatie
-2. **GESLAAGD** `validateUser() - unhappy path` - Verkeerde wachtwoord afhandeling
-3. **GESLAAGD** `register() - happy path` - Nieuwe gebruiker registratie
-4. **GESLAAGD** `register() - unhappy path` - Duplicate email afhandeling
-
-**UserService Tests (3 tests):**
-5. **GESLAAGD** `addToFavorites business logic - happy path` - Module toevoegen
-6. **GESLAAGD** `updateUser() - happy path` - Email update met validatie  
-7. **GESLAAGD** `getUserById() - unhappy path` - User niet gevonden
-
-**Plus 14 extra backend tests** voor volledige coverage van alle service methods
-
-#### Frontend Angular Tests (29 tests - ALLE SLAGEN):
-
-**AuthService Tests (8 tests):**
-- **GESLAAGD** Login happy/unhappy path scenarios
-- **GESLAAGD** Register happy/unhappy path scenarios
-- **GESLAAGD** Logout functionaliteit 
-- **GESLAAGD** Token validatie en authentication checks
-
-**UserService Tests (4 tests):**
-- **GESLAAGD** Add/remove favorites happy/unhappy path
-- **GESLAAGD** Email update happy/unhappy path
-- **GESLAAGD** Profile ophalen en error handling
-
-**App Component Tests:**
-- **GESLAAGD** Component creation en router-outlet rendering
-
-### Integration Tests (Happy + Unhappy Path - **VOLTOOID** 7 Tests)
-
-**Backend API Integration Tests:**
-- **GESLAAGD** POST /api/auth/register (happy + unhappy scenarios)
-- **GESLAAGD** POST /api/auth/login (happy + unhappy scenarios)
-- **GESLAAGD** Complete user registration/login flows
-- **GESLAAGD** Error handling voor duplicate emails en invalid credentials
-
-### UI Tests met Playwright (**VOLTOOID** 12 Tests)
-
-**End-to-End User Flow Tests:**
-
-**Authentication Tests (4 tests):**
-- **GESLAAGD** Login flow met registratie (credentials naar modules)
-- **GESLAAGD** Invalid credentials error handling
-- **GESLAAGD** Logout flow en redirect
-- **GESLAAGD** Duplicate email prevention
-
-**Modules Tests (5 tests):**
-- **GESLAAGD** Modules lijst weergave
-- **GESLAAGD** Search functionaliteit
-- **GESLAAGD** Module content weergave
-- **GESLAAGD** Navigatie vanaf modules page
-- **GESLAAGD** Authenticated access verificatie
-
-**Profile Tests (3 tests):**
-- **GESLAAGD** Profile page toegang
-- **GESLAAGD** Authenticated pages toegang
-- **GESLAAGD** Navigatie tussen authenticated pages
-
-## Test Types en Scope
-
-### Happy Path Tests:
-- **GESLAAGD** Nieuwe gebruiker registratie succesvol
-- **GESLAAGD** Login met correcte credentials
-- **GESLAAGD** Favorites toevoegen/verwijderen
-- **GESLAAGD** Email updates met validatie
-- **GESLAAGD** Token generatie en validatie
-
-### Unhappy Path Tests:
-- **GESLAAGD** Registratie met bestaand email faalt (409 Conflict)
-- **GESLAAGD** Login met verkeerde credentials faalt (401 Unauthorized)
-- **GESLAAGD** Ongeldige/vervallen tokens worden afgewezen
-- **GESLAAGD** Niet-bestaande users geven 404 errors
-- **GESLAAGD** Duplicate favorites worden correct afgehandeld
-- **GESLAAGD** Server errors en network failures
-
-## Uitleg voor Presentatie
-
-### Waarom Deze Test Strategy?
-
-1. **Unit Tests Dekken Core Business Logic:**
-   - AuthService: De belangrijkste security functionaliteit
-   - UserService: Core user management en favorites
-   - Zowel happy als unhappy paths getest
-
-2. **Integration Tests Valideren API Endpoints:**
-   - Complete request/response cycles
-   - Echte HTTP calls naar endpoints
-   - Database interacties (mocked voor isolation)
-
-3. **Frontend Tests Dekken Service Layer:**
-   - HTTP client functionaliteit
-   - Error handling en state management
-   - User experience flows
-
-4. **UI Tests (Playwright) Valideren Complete User Flows:**
-   - End-to-end user scenarios
-   - Browser automation en real user interactions
-   - Cross-browser compatibility testing
-   - Complete application workflow validation
-
-### Test Isolation en Reliability:
-
-- **Mocking Strategy:** JWT, database, HTTP calls gemocked
-- **Test Independence:** Elke test draait in isolatie
-- **Coverage:** Focus op kritieke business logic
-
-### Tools en Frameworks:
-
-- **Backend:** Jest + NestJS Testing utilities + Supertest
-- **Frontend:** Jasmine + Karma + Angular Testing utilities
-- **UI Tests:** Playwright voor cross-browser end-to-end testing
-- **Coverage:** Jest coverage reports + Angular coverage + Playwright HTML reports
-
-## Test Metrics
-
-- **Total Tests:** 50 tests (21 backend + 29 frontend) + 7 integration tests + 12 UI tests = **69 tests**
-- **Success Rate:** **100% - ALLE TESTS SLAGEN**
-- **Scope:** Alle belangrijke user scenarios gedekt
-- **Quality:** Happy + unhappy paths volledig getest
-- **Coverage:** Unit, Integration en End-to-End test coverage
