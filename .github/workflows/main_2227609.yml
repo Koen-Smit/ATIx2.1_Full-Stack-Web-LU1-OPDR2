@@ -19,12 +19,12 @@ jobs:
       - name: Install & test server
         run: |
           cd server
-          npm ci
+          npm install
           npm run test --if-present
       - name: Install & test client
         run: |
           cd client
-          npm ci
+          npm install
           npm run test -- --watch=false --browsers=ChromeHeadless || true
 
   build-backend:
@@ -39,7 +39,7 @@ jobs:
       - name: Build backend
         run: |
           cd server
-          npm ci
+          npm install
           npm run build
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
