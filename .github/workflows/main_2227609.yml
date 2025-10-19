@@ -55,6 +55,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_BCD8F0D4B06F4527A6D9D21C7FB9C9BA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2F21754876384799B73CE168E2A98E5C }}
 
+      - name: 'Configure startup command'
+        run: |
+          az webapp config set --resource-group defaultresourcegroup-WEU --name 2227609 --startup-file "npm run start:server"
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
